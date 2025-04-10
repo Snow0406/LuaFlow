@@ -105,7 +105,7 @@ LuaFlow/
 ├── Runtime/
 │   ├── Base/            # 기본 인터페이스 및 클래스
 │   ├── Command/         # 커맨드 구현 (애니메이션, 카메라, ...등)
-│   ├── Core/            # 핵심 기능
+│   ├── Core/            # 핵심 기능 
 │   ├── Entity/          # 게임 엔티티 래퍼
 │   ├── Integration/     # 커스텀 액션 및 이벤트 시스템
 │   ├── Interface/       # 시스템 컴포넌트 인터페이스
@@ -118,7 +118,6 @@ LuaFlow/
 > `LuaFlow`는 인터페이스 기반 설계를 통해 높은 유연성과 확장성을 제공합니다.
 
 1. **인터페이스 정의:**
-
 ```csharp
 // Interface/ICameraManager.cs
 public interface ICameraManager
@@ -130,13 +129,12 @@ public interface ICameraManager
 ```
 
 2. **구현 클래스:**
-
 ```csharp
 // CameraManager.cs
 public class CameraManager : MonoBehaviour, ICameraManager
 {
     public static CameraManager Instance { get; private set; }
-
+    
     private void Awake()
     {
         if (Instance == null)
@@ -150,7 +148,7 @@ public class CameraManager : MonoBehaviour, ICameraManager
             Destroy(gameObject);
         }
     }
-
+    
     // ICameraManager 인터페이스 구현
     // ...
 }
@@ -185,11 +183,9 @@ cameraManager.ChangeCameraTarget(targetTransform, 0.5f);
 ```
 
 ## 사용법
-
 ### 게임 엔티티 관리
-
 > `GameEntityManager`는 서로 다른 씬에서 게임 오브젝트를 등록, 접근 및 관리하는 중앙 집중식 방법을 제공합니다. <br/>
-> 직접 구현해야 합니다. [예시](Assets/Scripts/GameEntityManager.cs)
+> 직접 구현해야 합니다. [예시]()
 
 ```csharp
 // 게임 오브젝트 등록 (일반적으로 Awake 또는 Start에서)
@@ -324,7 +320,6 @@ end
 4. 플레이어가 트리거 영역에 들어가면 컷신이 재생됩니다
 
 ## 시스템 확장하기
-
 ### 커스텀 커맨드 추가
 
 > LuaFlow는 확장을 편하게 할수 있게 설계되었습니다.
@@ -357,7 +352,6 @@ public partial class LuaDialogueCommand : BaseLuaCommand
 ### 커스텀 매니저 생성
 
 1. **새 인터페이스 정의:**
-
 ```csharp
 // Interface/IDialogueManager.cs
 public interface IDialogueManager
@@ -369,18 +363,17 @@ public interface IDialogueManager
 ```
 
 2. **인터페이스 구현:**
-
 ```csharp
 // DialogueManager.cs
 public class DialogueManager : MonoBehaviour, IDialogueManager
 {
     public static DialogueManager Instance { get; private set; }
-
+    
     [SerializeField] private GameObject dialoguePanel;
     [SerializeField] private Text dialogueText;
-
+    
     public bool IsDialogueActive => dialoguePanel.activeSelf;
-
+    
     private void Awake()
     {
         if (Instance == null)
@@ -394,17 +387,17 @@ public class DialogueManager : MonoBehaviour, IDialogueManager
             Destroy(gameObject);
         }
     }
-
+    
     public void ShowDialogue(string text)
     {
         // ...
     }
-
+    
     public void HideDialogue()
     {
         // ...
     }
-
+    
     private void OnDestroy()
     {
         if (Instance == this)

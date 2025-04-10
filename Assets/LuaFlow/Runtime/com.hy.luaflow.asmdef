@@ -1,0 +1,9 @@
+﻿{
+  "name": "com.hy.luaflow",
+  "references": [
+    "UniTask",
+    "Lua.Unity",
+    "Unity.Addressables",
+    "Unity.ResourceManager"
+  ]
+}

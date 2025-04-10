@@ -2,7 +2,6 @@
   "dependencies": {
     "com.annulusgames.lua.unity": "https://github.com/AnnulusGames/Lua-CSharp.git?path=src/Lua.Unity/Assets/Lua.Unity",
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
-    "com.github-glitchenzo.nugetforunity": "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity",
     "com.unity.addressables": "2.2.2",
     "com.unity.collab-proxy": "2.7.1",
     "com.unity.feature.2d": "2.0.1",

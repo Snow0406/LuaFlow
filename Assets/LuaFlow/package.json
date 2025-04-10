@@ -1,0 +1,14 @@
+﻿{
+  "name": "com.hy.luaflow",
+  "version": "1.0.0",
+  "displayName": "LuaFlow",
+  "description": "LuaScript + Unity Cutscene",
+  "dependencies": {
+    "com.annulusgames.lua.unity": "https://github.com/AnnulusGames/Lua-CSharp.git?path=src/Lua.Unity/Assets/Lua.Unity",
+    "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask"
+  },
+  "author": {
+    "name": "hy",
+    "url": "https://github.com/Snow0406"
+  }
+}

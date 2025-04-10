@@ -1,11 +1,12 @@
 ﻿using Cysharp.Threading.Tasks;
+using LuaFlow.Interface;
 using UnityEngine;
 
 /// <summary>
 /// Base class for animations.
 /// This class is used for game objects with complex animations (e.g., player, enemies, etc.).
 /// </summary>
-public class BaseAnimation : MonoBehaviour
+public class BaseAnimation : MonoBehaviour, IAnimationManager
 {
     public bool FlipX { get; private set; }
 
@@ -17,12 +18,7 @@ public class BaseAnimation : MonoBehaviour
         Animator = GetComponent<Animator>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
     }
-
-    /// <summary>
-    /// Play animation (for cutscenes).
-    /// </summary>
-    /// <param name="animationName"></param>
-    /// <param name="isAsync">true: Waits until completion.</param>
+    
     public async UniTask PlayAnimationAsync(string animationName, bool isAsync)
     {
         // Play animation

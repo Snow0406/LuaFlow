@@ -1,3 +1,5 @@
+using LuaFlow.Core;
+using LuaFlow.Interface;
 using UnityEngine;
 
 /// <summary>
@@ -6,12 +8,12 @@ using UnityEngine;
 /// This class sets the camera's target.
 /// It was written for testing purposes and does not use Cinemachine.
 /// </summary>
-public class CameraManager : MonoBehaviour
+public class CameraManager : MonoBehaviour, ICameraManager
 {
     public static CameraManager Instance { get; private set; }
     public Camera MainCamera { get; private set; }
 
-    [field: SerializeField] public Vector3 PositionOffset { get; private set; }
+    [field: SerializeField] public Vector3 PositionOffset { get; set; }
 
     [SerializeField] [Range(0, 1)] private float smoothTime;
     private Transform _cameraTarget;
@@ -21,6 +23,7 @@ public class CameraManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            LuaFlowServiceLocator.Register<ICameraManager>(this);
             DontDestroyOnLoad(gameObject);
         }
         else
@@ -44,6 +47,7 @@ public class CameraManager : MonoBehaviour
     private void OnDestroy()
     {
         Instance = null;
+        LuaFlowServiceLocator.Unregister<ICameraManager>();
     }
 
     /// <summary>

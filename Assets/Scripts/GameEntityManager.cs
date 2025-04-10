@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using LuaFlow.Core;
+using LuaFlow.Interface;
 using UnityEngine;
 
 /// <summary>
@@ -6,7 +8,7 @@ using UnityEngine;
 /// This source code is designed based on Unity's Scene Adaptive approach (e.g., Chap1 scene, Player scene, Manager scene, ...).
 /// This class is used for the purpose of maintaining object references across scenes and optimizing performance.
 /// </summary>
-public class GameEntityManager : MonoBehaviour
+public class GameEntityManager : MonoBehaviour, IGameEntityManager
 {
     public static GameEntityManager Instance { get; private set; }
 
@@ -17,12 +19,19 @@ public class GameEntityManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            LuaFlowServiceLocator.Register<IGameEntityManager>(this);
             DontDestroyOnLoad(gameObject);
         }
         else
         {
             Destroy(gameObject);
         }
+    }
+    
+    private void OnDestroy()
+    {
+        Instance = null;
+        LuaFlowServiceLocator.Unregister<IGameEntityManager>();
     }
 
     /// <summary>

@@ -88,7 +88,7 @@ You can install LuaFlow through UPM (Unity Package Manager):
 1. Open Package Manager window (Window > Package Manager)
 2. Click the "+" button in the upper-left corner
 3. Select "Add package from git URL..."
-4. Enter `https://github.com/Snow0406/LuaFlow.git?path=Assets/LuaFlow`
+4. Enter https://github.com/Snow0406/LuaFlow.git?path=Assets/LuaFlow
 5. Click "Add"
 
 Package dependencies (Lua-CSharp and UniTask) are defined in package.json and will be installed automatically.
@@ -121,7 +121,6 @@ LuaFlow/
 > `LuaFlow` provides high flexibility and extensibility through interface-based design.
 
 1. **Interface Definition:**
-
 ```csharp
 // Interface/ICameraManager.cs
 public interface ICameraManager
@@ -133,13 +132,12 @@ public interface ICameraManager
 ```
 
 2. **Implementation Class:**
-
 ```csharp
 // CameraManager.cs
 public class CameraManager : MonoBehaviour, ICameraManager
 {
     public static CameraManager Instance { get; private set; }
-
+    
     private void Awake()
     {
         if (Instance == null)
@@ -153,7 +151,7 @@ public class CameraManager : MonoBehaviour, ICameraManager
             Destroy(gameObject);
         }
     }
-
+    
     // ICameraManager interface implementation
     // ...
 }
@@ -192,7 +190,7 @@ cameraManager.ChangeCameraTarget(targetTransform, 0.5f);
 ### Game Entity Management
 
 > The `GameEntityManager` provides a centralized way to register, access, and manage game objects across different scenes. <br/>
-> You need to implement this directly. [Example](Assets/Scripts/GameEntityManager.cs)
+> You need to implement this directly. [Example]()
 
 ```csharp
 // Register a game object (typically in Awake or Start)
@@ -361,7 +359,6 @@ public partial class LuaDialogueCommand : BaseLuaCommand
 ### Creating Custom Managers
 
 1. **Define a New Interface:**
-
 ```csharp
 // Interface/IDialogueManager.cs
 public interface IDialogueManager
@@ -373,18 +370,17 @@ public interface IDialogueManager
 ```
 
 2. **Implement the Interface:**
-
 ```csharp
 // DialogueManager.cs
 public class DialogueManager : MonoBehaviour, IDialogueManager
 {
     public static DialogueManager Instance { get; private set; }
-
+    
     [SerializeField] private GameObject dialoguePanel;
     [SerializeField] private Text dialogueText;
-
+    
     public bool IsDialogueActive => dialoguePanel.activeSelf;
-
+    
     private void Awake()
     {
         if (Instance == null)
@@ -398,17 +394,17 @@ public class DialogueManager : MonoBehaviour, IDialogueManager
             Destroy(gameObject);
         }
     }
-
+    
     public void ShowDialogue(string text)
     {
         // ...
     }
-
+    
     public void HideDialogue()
     {
         // ...
     }
-
+    
     private void OnDestroy()
     {
         if (Instance == this)
