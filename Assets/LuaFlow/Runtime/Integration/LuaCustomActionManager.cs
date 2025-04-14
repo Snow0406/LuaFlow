@@ -2,29 +2,126 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Events;
 using Debug = UnityEngine.Debug;
 
 namespace LuaFlow.Integration
 {
     /// <summary>
-    /// Lua script function manager.
-    /// This source code is designed based on Unity's Scene Adaptive approach (e.g., Chap1 scene, Player scene, Manager scene, ...) and projects managed with asmdef.
+    /// Lua script function manager
     /// </summary>
     public class LuaCustomActionManager : MonoBehaviour
     {
         public static LuaCustomActionManager Instance { get; private set; }
-        
-        private class LuaActionWrapper
+
+        #region Wrapper
+
+        private interface IActionExecutor
         {
-            public UnityAction NoParam;
-            public Action<object> Param;
-            public Func<UniTask> AsyncNoParam;
-            public Func<object, UniTask> AsyncParam;
+            void Execute(object parameter);
         }
 
-        private static readonly Dictionary<string, LuaActionWrapper> ActionMap = 
-            new Dictionary<string, LuaActionWrapper>(32, StringComparer.Ordinal);
+        private interface IAsyncActionExecutor
+        {
+            UniTask ExecuteAsync(object parameter);
+        }
+        
+        private class ActionExecutor<T> : IActionExecutor
+        {
+            private readonly Action<T> _action;
+            
+            public ActionExecutor(Action<T> action)
+            {
+                _action = action;
+            }
+            
+            public void Execute(object parameter)
+            {
+                if (parameter is T typedParam)
+                {
+                    _action(typedParam);
+                    return;
+                }
+                
+                if (TryConvert(parameter, out T converted)) _action(converted);
+                else Debug.LogError($"파라미터 타입 변환 실패: {parameter?.GetType()} → {typeof(T)}");
+            }
+        }
+        
+        private class NoParamActionExecutor : IActionExecutor
+        {
+            private readonly Action _action;
+            
+            public NoParamActionExecutor(Action action)
+            {
+                _action = action;
+            }
+            
+            public void Execute(object parameter)
+            {
+                _action();
+            }
+        }
+        
+        private class AsyncActionExecutor<T> : IAsyncActionExecutor
+        {
+            private readonly Func<T, UniTask> _action;
+            
+            public AsyncActionExecutor(Func<T, UniTask> action)
+            {
+                _action = action;
+            }
+            
+            public async UniTask ExecuteAsync(object parameter)
+            {
+                if (parameter is T typedParam)
+                {
+                    await _action(typedParam);
+                    return;
+                }
+                
+                if (TryConvert(parameter, out T converted)) await _action(converted);
+                else Debug.LogError($"파라미터 타입 변환 실패: {parameter?.GetType()} → {typeof(T)}");
+            }
+        }
+        
+        private class NoParamAsyncActionExecutor : IAsyncActionExecutor
+        {
+            private readonly Func<UniTask> _action;
+            
+            public NoParamAsyncActionExecutor(Func<UniTask> action)
+            {
+                _action = action;
+            }
+            
+            public async UniTask ExecuteAsync(object parameter)
+            {
+                await _action();
+            }
+        }
+        
+        private static bool TryConvert<T>(object value, out T result)
+        {
+            result = default;
+            if (value == null) return !typeof(T).IsValueType;
+                
+            try
+            {
+                result = (T)Convert.ChangeType(value, typeof(T));
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        #endregion
+
+        private static readonly Dictionary<string, IActionExecutor> SyncActions = 
+            new Dictionary<string, IActionExecutor>(16, StringComparer.Ordinal);
+            
+        private static readonly Dictionary<string, IAsyncActionExecutor> AsyncActions = 
+            new Dictionary<string, IAsyncActionExecutor>(8, StringComparer.Ordinal);
 
         private void Awake()
         {
@@ -38,6 +135,12 @@ namespace LuaFlow.Integration
                 Destroy(gameObject);
             }
         }
+        
+        private void OnDestroy()
+        {
+            if (Instance != null) Instance = null;
+            ClearAllFunctions();
+        }
 
         #region Registration
 
@@ -46,10 +149,12 @@ namespace LuaFlow.Integration
         /// </summary>
         /// <param name="name"></param>
         /// <param name="action"></param>
-        public static void RegisterFunction(string name, UnityAction action)
+        public static void RegisterFunction(string name, Action action)
         {
-            if (!ActionMap.TryAdd(name, new LuaActionWrapper { NoParam = action }))
+            if (SyncActions.ContainsKey(name))
                 Debug.LogWarning($"LuaCustomActionManager: Function {name} already exists");
+            else
+                SyncActions[name] = new NoParamActionExecutor(action);
         }
         
         /// <summary>
@@ -57,10 +162,12 @@ namespace LuaFlow.Integration
         /// </summary>
         /// <param name="name"></param>
         /// <param name="action"></param>
-        public static void RegisterFunction(string name, Action<object> action)
+        public static void RegisterFunction<T>(string name, Action<T> action)
         {
-            if (!ActionMap.TryAdd(name, new LuaActionWrapper { Param = action }))
+            if (SyncActions.ContainsKey(name))
                 Debug.LogWarning($"LuaCustomActionManager: Function {name} already exists");
+            else
+                SyncActions[name] = new ActionExecutor<T>(action);
         }
         
         /// <summary>
@@ -70,8 +177,10 @@ namespace LuaFlow.Integration
         /// <param name="action"></param>
         public static void RegisterAsyncFunction(string name, Func<UniTask> action)
         {
-            if (!ActionMap.TryAdd(name, new LuaActionWrapper { AsyncNoParam = action }))
+            if (AsyncActions.ContainsKey(name))
                 Debug.LogWarning($"LuaCustomActionManager: Function {name} already exists");
+            else
+                AsyncActions[name] = new NoParamAsyncActionExecutor(action);
         }
         
         /// <summary>
@@ -79,98 +188,72 @@ namespace LuaFlow.Integration
         /// </summary>
         /// <param name="name"></param>
         /// <param name="action"></param>
-        public static void RegisterAsyncFunction(string name, Func<object, UniTask> action)
+        public static void RegisterAsyncFunction<T>(string name, Func<T, UniTask> action)
         {
-            if (!ActionMap.TryAdd(name, new LuaActionWrapper { AsyncParam = action }))
+            if (AsyncActions.ContainsKey(name))
                 Debug.LogWarning($"LuaCustomActionManager: Function {name} already exists");
+            else
+                AsyncActions[name] = new AsyncActionExecutor<T>(action);
         }
+        
         #endregion
 
         #region Execution
         
         public void ExecuteFunction(string name, object parameter = null)
         {
-            if (!ActionMap.TryGetValue(name, out var wrapper)) 
-                return;
-
-            if (parameter == null)
+            if (SyncActions.TryGetValue(name, out var executor))
             {
-                if (wrapper.NoParam != null)
+                try
                 {
-                    wrapper.NoParam.Invoke();
-                    return;
+                    executor.Execute(parameter);
                 }
-                
-                if (wrapper.Param != null)
+                catch (Exception ex)
                 {
-                    wrapper.Param.Invoke(null);
-                    return;
+                    Debug.LogError($"LuaCustomActionManager: Function execution error ({name}): {ex.Message}");
                 }
             }
             else
             {
-                if (wrapper.Param != null)
-                {
-                    wrapper.Param.Invoke(parameter);
-                    return;
-                }
-                
-                if (wrapper.NoParam != null)
-                {
-                    wrapper.NoParam.Invoke();
-                    return;
-                }
+                Debug.LogWarning($"LuaCustomActionManager: Unregistered function: {name}");
             }
-            
-            Debug.LogWarning($"LuaCustomActionManager: Function {name} found but no compatible delegate exists");
         }
-        
+
         public async UniTask ExecuteAsyncFunction(string name, object parameter = null)
         {
-            if (!ActionMap.TryGetValue(name, out var wrapper)) 
-                return;
-
-            if (parameter == null)
+            if (AsyncActions.TryGetValue(name, out var executor))
             {
-                if (wrapper.AsyncNoParam != null)
+                try
                 {
-                    await wrapper.AsyncNoParam();
-                    return;
+                    await executor.ExecuteAsync(parameter);
                 }
-                
-                if (wrapper.AsyncParam != null)
+                catch (Exception ex)
                 {
-                    await wrapper.AsyncParam(null);
-                    return;
+                    Debug.LogError($"LuaCustomActionManager: Async function execution error ({name}): {ex.Message}");
                 }
             }
             else
             {
-                if (wrapper.AsyncParam != null)
-                {
-                    await wrapper.AsyncParam(parameter);
-                    return;
-                }
-                
-                if (wrapper.AsyncNoParam != null)
-                {
-                    await wrapper.AsyncNoParam();
-                    return;
-                }
+                Debug.LogWarning($"LuaCustomActionManager: Unregistered async function: {name}");
             }
-            
-            Debug.LogWarning($"LuaCustomActionManager: Function {name} found but no compatible delegate exists");
         }
+        
         #endregion
         
+        /// <summary>
+        /// Unregister function for Lua scripts
+        /// </summary>
+        /// <param name="name"></param>
         public static void UnRegisterFunction(string name)
         {
-            ActionMap.Remove(name);
+            SyncActions.Remove(name);
+            AsyncActions.Remove(name);
         }
-        
-        public static void ClearAllFunctions()
+
+        private static void ClearAllFunctions()
         {
-            ActionMap.Clear();
+            SyncActions.Clear();
+            AsyncActions.Clear();
         }
     }
 }
