@@ -258,11 +258,16 @@ LuaCustomActionManager.RegisterFunction("ShowGameOver", () => {
 });
 
 // Register a function with a parameter
-LuaCustomActionManager.RegisterFunction("UpdateHealth", (object healthObj) => {
-    if (healthObj is int health) {
-        playerHealth.SetHealth(health);
-    }
+LuaCustomActionManager.RegisterFunction("UpdateHealth", (int health) => {
+    playerHealth.SetHealth(health);
 });
+
+private void UpdateHealth(int health) 
+{
+    playerHealth.SetHealth(health);
+}
+
+LuaCustomActionManager.RegisterFunction<int>("UpdateHealth", UpdateHealth);
 
 // Register an async function (using UniTask)
 LuaCustomActionManager.RegisterAsyncFunction("FadeToBlack", async () => {

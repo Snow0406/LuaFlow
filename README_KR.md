@@ -257,11 +257,16 @@ LuaCustomActionManager.RegisterFunction("ShowGameOver", () => {
 });
 
 // 매개변수가 있는 함수 등록
-LuaCustomActionManager.RegisterFunction("UpdateHealth", (object healthObj) => {
-    if (healthObj is int health) {
-        playerHealth.SetHealth(health);
-    }
+LuaCustomActionManager.RegisterFunction("UpdateHealth", (int health) => {
+    playerHealth.SetHealth(health);
 });
+
+private void UpdateHealth(int health)
+{
+    playerHealth.SetHealth(health);
+}
+
+LuaCustomActionManager.RegisterFunction<int>("UpdateHealth", UpdateHealth);
 
 // 비동기 함수 등록 (UniTask 사용)
 LuaCustomActionManager.RegisterAsyncFunction("FadeToBlack", async () => {
