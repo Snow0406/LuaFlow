@@ -96,6 +96,7 @@ namespace LuaFlow.Core
             state.Environment["log"] = new LuaFunction(async (context, buffer, ct) => {
                 var content = context.GetArgument<string>(0);
                 Debug.Log(content);
+                await UniTask.CompletedTask;
                 return 0;
             });
             
@@ -106,11 +107,13 @@ namespace LuaFlow.Core
                 Debug.Log($"GetGameObject called: {key}, result: {(gameObj != null ? gameObj.name : "null")}");
                 if (gameObj != null)
                 {
-                    buffer.Span[0] = (LuaValue)new LuaGameObject(gameObj);;
+                    buffer.Span[0] = (LuaValue)new LuaGameObject(gameObj);
+                    await UniTask.CompletedTask;
                     return 1;
                 }
         
                 Debug.LogError($"Cannot find game object: {key}");
+                await UniTask.CompletedTask;
                 return 0;
             });
         }
