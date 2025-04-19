@@ -12,6 +12,7 @@ namespace LuaFlow.Entity
         
         private LuaAnimationCommand _animation;
         private LuaTransformCommand _transform;
+        private LuaMovementCommand _movement;
         private LuaCameraCommand _camera;
         private LuaCustomActionBridge _action;
         private LuaCustomEventBridge _event;
@@ -43,6 +44,18 @@ namespace LuaFlow.Entity
             }
 
             return _transform;
+        }
+        
+        [LuaMember("move")]
+        public LuaMovementCommand Movement()
+        {
+            if (_movement == null)
+            {
+                _movement = new LuaMovementCommand(_gameObject);
+                _movement.Initialize();
+            }
+
+            return _movement;
         }
         
         [LuaMember("camera")]
