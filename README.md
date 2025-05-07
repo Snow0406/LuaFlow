@@ -47,8 +47,8 @@ function playCutscene()
     -- Follow camera1 at 0.5 speed, wait until arrival
     camera1:camera():follow(0.5, true)
 
-    -- Screen fade in
-    camera1:cinematic():fadeIn()
+    -- Screen fade out
+    camera1:cinematic():fadeOut()
     camera2:camera():follow(0.03, true)
 
     -- Execute player movement stop function
@@ -64,8 +64,8 @@ function playCutscene()
     -- Play player fall animation
     player:animation():play("FallDown")
 
-    -- Screen fade out
-    player:cinematic():fadeOut()
+    -- Screen fade in
+    player:cinematic():fadeIn()
 
     -- Wait 3 seconds
     wait(3.0)

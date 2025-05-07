@@ -45,8 +45,8 @@ function playCutscene()
     -- 카메라를 0.5 속도로 카메라1 따라가기, 도착까지 대기
     camera1:camera():follow(0.5, true)
 
-    -- 화면 페이드 인
-    camera1:cinematic():fadeIn()
+    -- 화면 페이드 아웃
+    camera1:cinematic():fadeOut()
     camera2:camera():follow(0.03, true)
 
     -- 플레이어 이동 중지 함수 실행
@@ -62,8 +62,8 @@ function playCutscene()
     -- 플레이어 낙하 애니메이션 재생
     player:animation():play("FallDown")
 
-    -- 화면 페이드 아웃
-    player:cinematic():fadeOut()
+    -- 화면 페이드 인
+    player:cinematic():fadeIn()
 
     -- 3초 대기
     wait(3.0)
