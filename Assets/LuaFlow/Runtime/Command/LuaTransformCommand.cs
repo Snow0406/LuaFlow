@@ -30,7 +30,7 @@ namespace LuaFlow.Command
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        [LuaMember("setPosition")]
+        [LuaMember("pos")]
         public void SetPosition(float x, float y)
         {
             if (!_isTransformCached) Initialize();
@@ -42,7 +42,7 @@ namespace LuaFlow.Command
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        [LuaMember("setRotation")]
+        [LuaMember("rot")]
         public void SetRotation(float x, float y)
         {
             if (!_isTransformCached) Initialize();
@@ -54,7 +54,7 @@ namespace LuaFlow.Command
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
-        [LuaMember("setScale")]
+        [LuaMember("scale")]
         public void SetScale(float x, float y)
         {
             if (!_isTransformCached) Initialize();
