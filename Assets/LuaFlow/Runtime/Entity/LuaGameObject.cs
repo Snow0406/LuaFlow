@@ -22,7 +22,7 @@ namespace LuaFlow.Entity
             _gameObject = gameObject;
         }
 
-        [LuaMember("animation")]
+        [LuaMember("anim")]
         public LuaAnimationCommand Animation()
         {
             if (_animation == null)
@@ -94,7 +94,7 @@ namespace LuaFlow.Entity
             return _event;
         }
         
-        [LuaMember("setActive")]
+        [LuaMember("active")]
         public void SetActive(bool active)
         {
             _gameObject.SetActive(active);
