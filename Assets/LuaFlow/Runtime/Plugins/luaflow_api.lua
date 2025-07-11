@@ -14,6 +14,20 @@ log = function(message) end
 ---@param duration number Wait duration in seconds
 wait = function(duration) end
 
+-- ===== Parallel Execution Functions (TaskRunner) =====
+
+---@global Proceeds as soon as any of the parallel tasks completes.
+---@param ... function The functions to execute in parallel.
+any = function(...) end
+
+---@global Proceeds only when the first task specified in the arguments completes.
+---@param ... function The functions to execute in parallel.
+first = function(...) end
+
+---@global Proceeds only after all of the parallel tasks have completed.
+---@param ... function The functions to execute in parallel.
+all = function(...) end
+
 -- ===== Command Classes =====
 
 ---@class LuaAnimationCommand Animation control class

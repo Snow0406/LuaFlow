@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Lua;
 using Lua.Unity;
 using LuaFlow.Entity;
 using LuaFlow.Interface;
+using LuaFlow.Runtime.Utility;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
@@ -116,6 +118,52 @@ namespace LuaFlow.Core
                 await UniTask.CompletedTask;
                 return 0;
             });
+            
+            #region TaskRunner
+
+            state.Environment["any"] = new LuaFunction(async (context, buffer, ct) =>
+            {
+                var tasks = new List<UniTask>();
+                for (var i = 0; i < context.ArgumentCount; i++)
+                {
+                    var func = context.GetArgument<LuaFunction>(i);
+                    var uniTask = func.InvokeAsync(state, Array.Empty<LuaValue>(), ct).AsUniTask();
+                    tasks.Add(uniTask);
+                }
+                
+                await TaskRunner.ExecuteAny(tasks.ToArray());
+                return 0;
+            });
+            
+            state.Environment["first"] = new LuaFunction(async (context, buffer, ct) =>
+            {
+                var tasks = new List<UniTask>();
+                for (var i = 0; i < context.ArgumentCount; i++)
+                {
+                    var func = context.GetArgument<LuaFunction>(i);
+                    var uniTask = func.InvokeAsync(state, Array.Empty<LuaValue>(), ct).AsUniTask();
+                    tasks.Add(uniTask);
+                }
+                
+                await TaskRunner.ExecuteFirst(tasks.ToArray());
+                return 0;
+            });
+            
+            state.Environment["all"] = new LuaFunction(async (context, buffer, ct) =>
+            {
+                var tasks = new List<UniTask>();
+                for (var i = 0; i < context.ArgumentCount; i++)
+                {
+                    var func = context.GetArgument<LuaFunction>(i);
+                    var uniTask = func.InvokeAsync(state, Array.Empty<LuaValue>(), ct).AsUniTask();
+                    tasks.Add(uniTask);
+                }
+                
+                await TaskRunner.ExecuteAll(tasks.ToArray());
+                return 0;
+            });
+
+            #endregion
         }
 
         /// <summary>

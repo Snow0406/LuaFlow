@@ -36,46 +36,44 @@ This architecture influences LuaFlow's design in several key ways:
 Here's an actual cutscene from the [Lilium](https://hyuki.dev/project/lilium/) project using LuaFlow:
 
 ```lua
---- Chap1-01 -> Chap1-02 Cutscene
+--- Chap1-02 -> Chap1-03 Cutscene
 
--- Get references to required game objects
 local player = get("Player")
-local camera1 = get("CameraMove_1")
-local camera2 = get("CameraMove_2")
+local drone = get("DroneEnemy")
 
 function playCutscene()
-    -- Follow camera1 at 0.5 speed, wait until arrival
-    camera1:camera():follow(0.5, true)
-
-    -- Screen fade out
+    drone:event():exec("DroneStateMachineOff");
     player:cinematic():fadeOut()
-    camera2:camera():follow(0.03, true)
-
-    -- Execute player movement stop function
-    player:action():exec("PlayerMoveStop")
-
-    -- Invoke chapter transition event
-    player:event():exec("MovePlayerToNextChapter")
-
-    -- Flip player direction to right
-    player:animation():flip(true)
-    player:camera():follow(1, true)
-
-    -- Play player fall animation
-    player:animation():play("FallDown")
-
-    -- Screen fade in
-    camera1:cinematic():fadeIn()
-
-    -- Wait 3 seconds
-    wait(3.0)
-
-    -- Play player getting up animation and wait until completion
-    player:animation():play("GetUp", true)
-    player:animation():play("Idle")
-
-    -- Re-enable player control function
-    player:action():exec("PlayerMoveStart")
+    wait(1.0)
+    
+    drone:transform():pos(216, -106.5, 0)
+    drone:anim():flip(false)
+    
+    player:action():exec("PlayerMoveStop", true)
+    player:transform():pos(207.8, -109.37, 0)
+    player:anim():flip(false)
+    player:camera():offset(0, 0)
+    player:camera():zoom(100, 0)
+    player:camera():follow(0.1, true)
+    
+    player:cinematic():fadeIn()
+    wait(0.1)
+    
+    first(
+  function()
+        player:anim():play("Walk_Tired")
+        player:move():to(196.5, -109.37, 2)
+        player:anim():play("Sit_Lean")
+    end,
+  function()
+        drone:move():to(212, -106.5, 5)
+        wait(2.0)
+        drone:move():toSync(212, -96.7, 4)
+    end
+    )
+    ...
+    
+    log("Cutscene End !")
 end
 ```
 

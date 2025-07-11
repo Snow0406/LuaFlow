@@ -34,46 +34,44 @@ LuaFlow는 Scene Adaptive 방식을 사용하는 [Lilium](https://hyuki.dev/proj
 LuaFlow를 이용한 [Lilium](https://hyuki.dev/project/lilium/) 프로젝트의 실제 컷신입니다:
 
 ```lua
---- Chap1-01 -> Chap1-02 컷신
+--- Chap1-02 -> Chap1-03 Cutscene
 
--- 필요한 게임 오브젝트 참조 가져오기
 local player = get("Player")
-local camera1 = get("CameraMove_1")
-local camera2 = get("CameraMove_2")
+local drone = get("DroneEnemy")
 
 function playCutscene()
-    -- 카메라를 0.5 속도로 카메라1 따라가기, 도착까지 대기
-    camera1:camera():follow(0.5, true)
-
-    -- 화면 페이드 아웃
+    drone:event():exec("DroneStateMachineOff");
     player:cinematic():fadeOut()
-    camera2:camera():follow(0.03, true)
-
-    -- 플레이어 이동 중지 함수 실행
-    player:action():exec("PlayerMoveStop")
-
-    -- 챕터 전환 이벤트 Invoke
-    player:event():exec("MovePlayerToNextChapter")
-
-    -- 플레이어 방향 오른쪽으로 뒤집기
-    player:animation():flip(true)
-    player:camera():follow(1, true)
-
-    -- 플레이어 낙하 애니메이션 재생
-    player:animation():play("FallDown")
-
-    -- 화면 페이드 인
+    wait(1.0)
+    
+    drone:transform():pos(216, -106.5, 0)
+    drone:anim():flip(false)
+    
+    player:action():exec("PlayerMoveStop", true)
+    player:transform():pos(207.8, -109.37, 0)
+    player:anim():flip(false)
+    player:camera():offset(0, 0)
+    player:camera():zoom(100, 0)
+    player:camera():follow(0.1, true)
+    
     player:cinematic():fadeIn()
-
-    -- 3초 대기
-    wait(3.0)
-
-    -- 플레이어 일어나는 애니메이션 재생 및 완료까지 대기
-    player:animation():play("GetUp", true)
-    player:animation():play("Idle")
-
-    -- 플레이어 컨트롤 다시 활성화 함수 실행
-    player:action():exec("PlayerMoveStart")
+    wait(0.1)
+    
+    first(
+  function()
+        player:anim():play("Walk_Tired")
+        player:move():to(196.5, -109.37, 2)
+        player:anim():play("Sit_Lean")
+    end,
+  function()
+        drone:move():to(212, -106.5, 5)
+        wait(2.0)
+        drone:move():toSync(212, -96.7, 4)
+    end
+    )
+    ...
+    
+    log("Cutscene End !")
 end
 ```
 
