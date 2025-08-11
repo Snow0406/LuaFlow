@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Lua;
-using LuaFlow.Interface;
 using UnityEngine;
 
 namespace LuaFlow.Core
@@ -13,9 +11,10 @@ namespace LuaFlow.Core
     public class CutsceneManager : MonoBehaviour
     {
         public static CutsceneManager Instance { get; private set; }
+
+        public event Action OnCutsceneCompleted;
         
         private LuaScriptManager _luaManager;
-        
         private bool _isPlayingCutscene = false;
         private CancellationTokenSource _cutsceneCts;
 
@@ -43,7 +42,7 @@ namespace LuaFlow.Core
         {
             if (_isPlayingCutscene)
             {
-                Debug.LogWarning("A cutscene is already playing.");
+                Debug.LogWarning("[<color=#83b3f6>LuaFlow</color>] A cutscene is already playing.");
                 return false;
             }
             
@@ -56,7 +55,7 @@ namespace LuaFlow.Core
                 
                 if (!success)
                 {
-                    Debug.LogError($"Failed to load script: {cutsceneScriptName}");
+                    Debug.LogError($"[<color=#83b3f6>LuaFlow</color>] Failed to load script: {cutsceneScriptName}");
                     return false;
                 }
                 
@@ -66,12 +65,11 @@ namespace LuaFlow.Core
             }
             catch (OperationCanceledException)
             {
-                Debug.Log("Cutscene was cancelled.");
                 return false;
             }
             catch (Exception e)
             {
-                Debug.LogError($"Cutscene play error: {e.Message}");
+                Debug.LogError($"[<color=#83b3f6>LuaFlow</color>] Cutscene play error: {e.Message}");
                 return false;
             }
             finally
@@ -79,6 +77,48 @@ namespace LuaFlow.Core
                 _isPlayingCutscene = false;
                 _cutsceneCts?.Dispose();
                 _cutsceneCts = null;
+                OnCutsceneCompleted?.Invoke();
+            }
+        }
+        
+        /// <summary>
+        /// Skip Cutscene
+        /// </summary>
+        /// <param name="isAsync">Whether to wait until completion.</param>
+        public async UniTask SkipCutscene(bool isAsync = false)
+        {
+            if (!_isPlayingCutscene || _cutsceneCts == null || _cutsceneCts.IsCancellationRequested) return;
+            _cutsceneCts.Cancel();
+
+            if (isAsync)
+            {
+                using var timeoutCts = new CancellationTokenSource(5000);
+                using var combinedCts = CancellationTokenSource.CreateLinkedTokenSource(
+                    timeoutCts.Token,
+                    this.GetCancellationTokenOnDestroy()
+                );
+
+                try
+                {
+                    var tcs = new UniTaskCompletionSource<bool>();
+
+                    Action onCompleted = null;
+                    onCompleted = () =>
+                    {
+                        OnCutsceneCompleted -= onCompleted;
+                        tcs.TrySetResult(true);
+                    };
+                    
+                    OnCutsceneCompleted += onCompleted;
+                    await tcs.Task.AttachExternalCancellation(combinedCts.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                    if (timeoutCts.IsCancellationRequested)
+                    {
+                        Debug.LogWarning("[<color=#83b3f6>LuaFlow</color>] Cutscene cancel timeout!");
+                    }
+                }
             }
         }
     }

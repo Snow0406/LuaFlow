@@ -48,7 +48,7 @@ namespace LuaFlow.Core
             }
             catch (Exception e)
             {
-                Debug.LogError($"Lua script load error: {e.Message}");
+                Debug.LogError($"[<color=#83b3f6>LuaFlow</color>] Lua script load error: {e.Message}");
                 return false;
             }
         }
@@ -77,7 +77,7 @@ namespace LuaFlow.Core
             
             if (cutsceneHandle.Result == null)
             {
-                Debug.LogError($"Failed to load Lua script.");
+                Debug.LogError($"[<color=#83b3f6>LuaFlow</color>] Failed to load Lua script.");
                 return null;
             }
 
@@ -106,15 +106,14 @@ namespace LuaFlow.Core
                 var key = context.GetArgument<string>(0);
         
                 GameObject gameObj = _gameEntityManager.GetGameObject(key);
-                Debug.Log($"GetGameObject called: {key}, result: {(gameObj != null ? gameObj.name : "null")}");
-                if (gameObj != null)
+                if (gameObj)
                 {
                     buffer.Span[0] = (LuaValue)new LuaGameObject(gameObj);
                     await UniTask.CompletedTask;
                     return 1;
                 }
         
-                Debug.LogError($"Cannot find game object: {key}");
+                Debug.LogError($"[<color=#83b3f6>LuaFlow</color>] Cannot find game object: {key}");
                 await UniTask.CompletedTask;
                 return 0;
             });
@@ -173,7 +172,7 @@ namespace LuaFlow.Core
         {
             if (_currentState == null)
             {
-                Debug.LogError("No active Lua state.");
+                Debug.LogError("[<color=#83b3f6>LuaFlow</color>] No active Lua state.");
                 return false;
             }
             try
@@ -188,13 +187,13 @@ namespace LuaFlow.Core
                 }
                 else
                 {
-                    Debug.LogError($"{functionName} is not a function.");
+                    Debug.LogError($"[<color=#83b3f6>LuaFlow</color>] {functionName} is not a function.");
                     return false;
                 }
             }
             catch (Exception e)
             {
-                Debug.LogError($"Function call error: {e.Message}");
+                Debug.LogError($"[<color=#83b3f6>LuaFlow</color>] Function call error: {e.Message}");
                 return false;
             }
         }

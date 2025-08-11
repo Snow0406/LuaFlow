@@ -1,5 +1,5 @@
 ﻿{
-  "name": "com.hy.luaflow",
+  "name": "com.hy.luaflow.runtime",
   "references": [
     "UniTask",
     "Lua.Unity",
