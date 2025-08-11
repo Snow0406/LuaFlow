@@ -1,6 +1,6 @@
 ﻿{
   "name": "com.hy.luaflow",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "displayName": "LuaFlow",
   "description": "LuaScript + Unity Cutscene",
   "dependencies": {
