@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Lua;
-using LuaFlow.Interface;
 using UnityEngine;
 
 namespace LuaFlow.Core
