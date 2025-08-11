@@ -20,11 +20,11 @@ namespace LuaFlow.Core
             
             if (Services.ContainsKey(type))
             {
-                Debug.LogWarning($"An instance of service type {type.Name} is already registered. Replacing the existing instance.");
+                Debug.LogWarning($"[<color=#83b3f6>LuaFlow</color>] An instance of service type {type.Name} is already registered. Replacing the existing instance.");
             }
             
             Services[type] = service;
-            Debug.Log($"Service {type.Name} registration completed");
+            Debug.Log($"[<color=#83b3f6>LuaFlow</color>] Service {type.Name} registration completed");
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace LuaFlow.Core
             
             if (!Services.TryGetValue(type, out var service))
             {
-                Debug.LogError($"Service {type.Name} could not be found. Make sure the service is registered first.");
+                Debug.LogError($"[<color=#83b3f6>LuaFlow</color>] Service {type.Name} could not be found. Make sure the service is registered first.");
                 return null;
             }
             
@@ -50,10 +50,9 @@ namespace LuaFlow.Core
         {
             Type type = typeof(T);
             
-            if (Services.ContainsKey(type))
+            if (Services.Remove(type))
             {
-                Services.Remove(type);
-                Debug.Log($"Service {type.Name} unregistration completed");
+                Debug.Log($"[<color=#83b3f6>LuaFlow</color>] Service {type.Name} unregistration completed");
             }
         }
 
@@ -63,7 +62,7 @@ namespace LuaFlow.Core
         public static void Clear()
         {
             Services.Clear();
-            Debug.Log("All services unregistered successfully");
+            Debug.Log("[<color=#83b3f6>LuaFlow</color>] All services unregistered successfully");
         }
     }
 }
