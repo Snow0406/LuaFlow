@@ -1,0 +1,7 @@
+﻿{
+  "name": "com.hy.luaflow.editor",
+  "references": [
+    "UniTask",
+    "com.hy.luaflow.runtime"
+  ]
+}
